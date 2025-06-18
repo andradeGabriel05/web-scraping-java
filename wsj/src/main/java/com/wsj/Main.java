@@ -33,18 +33,20 @@ public class Main {
         for (String url : urls) {
             try {
                 Document document = Jsoup.connect(url).get();
-                Elements pTags = document.select("p");
-                logger.info("Found {} <p> tags.", pTags.size());
+                Element itemlist = document.select("article.md-content__inner.md-typeset").first();
+                // select each li element
+                Elements pTags = itemlist.select("ul");
+                logger.info("Found {} <ul> tags.", pTags.size());
 
                 String filename = url.substring(url.lastIndexOf("/") + 1).split(".html")[0];
                 logger.info("Extracted filename from URL: {}", url);
 
                 HandleFile handleFile = new HandleFile();
                 logger.info("Creating file with name: {}", filename);
-                handleFile.createFile(filename);
+                Boolean fileCreated = handleFile.createFile(filename);
 
                 for (Element pTag : pTags) {
-                    handleFile.writeFile(filename, pTag.text());
+                    if (fileCreated) handleFile.writeFile(filename, pTag.text());
                 }
                 logger.info("Successfully wrote to the file;");
 

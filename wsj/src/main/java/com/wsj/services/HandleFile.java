@@ -13,17 +13,19 @@ import java.io.IOException;
 public class HandleFile {
     Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public void createFile(String filename) {
+    public Boolean createFile(String filename) {
         try {
-            File myObj = new File("C:\\Windows\\Temp\\"+filename+".txt");
+
+            File myObj = new File("C:\\Windows\\Temp\\" + filename + ".txt");
             if (myObj.createNewFile()) {
                 logger.info("File created: {}", myObj.getName());
-            } else {
-                logger.warn("File already exists: {}", myObj.getName());
+                return true;
             }
+            logger.warn("File already exists: {}", myObj.getName());
+            return false;
         } catch (IOException e) {
             logger.error("An error occurred. {}", e);
-//            e.printStackTrace();
+            return false;
         }
     }
 
@@ -31,10 +33,10 @@ public class HandleFile {
         try {
             FileWriter myWriter = new FileWriter("C:\\Windows\\Temp\\"+filename+".txt",true);
             myWriter.write(content + System.lineSeparator());
+            logger.info("Successfully wrote to the file;");
             myWriter.close();
         } catch (IOException e) {
             logger.error("An error occurred. {}", e);
-//            e.printStackTrace();
         }
     }
 }
