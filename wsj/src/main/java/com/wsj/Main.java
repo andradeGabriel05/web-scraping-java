@@ -45,12 +45,10 @@ public class Main {
                 if (paragrafos.isEmpty()) {
                     handleFile.writeFile(filename, "Nenhum parágrafo encontrado em: " + u);
                 } else {
-                    handleFile.writeFile(filename, "URL: " + u);
                     for (Element p : paragrafos) {
                         String texto = p.text();
                         handleFile.writeFile(filename, texto);
                     }
-                    handleFile.writeFile(filename, "----------------------------");
                 }
 
                 System.out.println("Parágrafos extraídos da URL: " + u);
