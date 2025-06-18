@@ -12,66 +12,73 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        HandleFile handleFile = new HandleFile();
+        String url;
+        String filename = "";
 
-  public static void main(String[] args) {
-    Scanner scanner = new Scanner(System.in);
-    HandleFile handleFile = new HandleFile();
+        while (true) {
+            System.out.println("Pressione ENTER sem digitar nada para finalizar.");
+            System.out.print("Digite o nome do arquivo: ");
+            filename = scanner.nextLine();
+            Boolean fileCreated = handleFile.createFile(filename);
 
-    System.out.print("Digite o nome do arquivo: ");
-    String filename = scanner.nextLine();
+            System.out.print("Digite a URL: ");
+            url = scanner.nextLine();
+            if (url.isBlank()) {
+                logger.info("Entrada de URLs finalizada.");
+                break;
+            }
+//            logger.debug("URL adicionada à lista: {}", url);
 
-    handleFile.createFile(filename);
 
-    List<String> urls = new ArrayList<>();
-    String url;
+            try {
+                // O userAgent evita bloqueios por sites que barram bots
+                Document doc = Jsoup.connect(url)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                                + " AppleWebKit/537.36 (KHTML, like Gecko)"
+                                + " Chrome/113.0.0.0 Safari/537.36")
+                        .timeout(10 * 1000)
+                        .get();
 
-    System.out.println(
-      "Digite as URLs uma por linha. Pressione ENTER sem digitar nada para finalizar."
-    );
+                Element itemlist = doc
+                        .select("article.md-content__inner.md-typeset")
+                        .first();
 
-    while (true) {
-      System.out.print("URL: ");
-      url = scanner.nextLine();
-      if (url.isBlank()) break;
-      urls.add(url);
-    }
-    for (String u : urls) {
-      try {
-        // O userAgent evita bloqueios por sites que barram bots
-        Document doc = Jsoup.connect(u)
-          .userAgent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
-          )
-          .timeout(10 * 1000)
-          .get();
+                Elements paragrafos = itemlist.select("p, h3, h4, li, h1, div.tabbed-block p");
 
-        Element itemlist = doc
-          .select("article.md-content__inner.md-typeset")
-          .first();
-        Elements paragrafos = itemlist.select("p, h3, h4, ul, li, h1");
+                if (paragrafos.isEmpty()) {
+                    logger.warn("Nenhum parágrafo encontrado em: {}", url);
+                } else {
+                    for (Element p : paragrafos) {
+                    String texto = "";
+                        if (p.tagName().equals("li")) {
+                            Element cloneLi = p.clone();
 
-        if (paragrafos.isEmpty()) {
-          handleFile.writeFile(
-            filename,
-            "Nenhum parágrafo encontrado em: " + u
-          );
-        } else {
-          for (Element p : paragrafos) {
-            String texto = p.text();
-            handleFile.writeFile(filename, texto);
-          }
+                            cloneLi.select("ul").remove();
+                            cloneLi.select("p").remove();
+
+                            texto = cloneLi.text().trim();
+
+                        } else {
+                            texto = p.text();
+                        }
+
+                        handleFile.writeFile(filename, texto);
+                    }
+                    logger.info("Parágrafos extraídos e salvos da URL: {}", url);
+                }
+            } catch (IOException e) {
+                logger.error("Erro ao acessar a URL: {}", url);
+            }
         }
-
-        System.out.println("Parágrafos extraídos da URL: " + u);
-      } catch (IOException e) {
-        System.err.println("Erro ao acessar a URL: " + u);
-        handleFile.writeFile(filename, "Erro ao acessar a URL: " + u);
-      }
+        logger.info("Fim da execução.");
+        scanner.close();
     }
-
-    scanner.close();
-    System.out.println("Fim da execução.");
-  }
 }

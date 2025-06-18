@@ -33,7 +33,7 @@ public class HandleFile {
         try {
             FileWriter myWriter = new FileWriter("C:\\Windows\\Temp\\"+filename+".txt",true);
             myWriter.write(content + System.lineSeparator());
-            logger.info("Successfully wrote to the file;");
+//            logger.info("Successfully wrote to the file;");
             myWriter.close();
         } catch (IOException e) {
             logger.error("An error occurred. {}", e);
