@@ -40,7 +40,8 @@ public class Main {
                         .timeout(10 * 1000)
                         .get();
 
-                Elements paragrafos = doc.select("p");
+                Element itemlist = doc.select("article.md-content__inner.md-typeset").first();
+                Elements paragrafos = itemlist.select("p, h3, h4, ul, li, h1");
 
                 if (paragrafos.isEmpty()) {
                     handleFile.writeFile(filename, "Nenhum parágrafo encontrado em: " + u);
