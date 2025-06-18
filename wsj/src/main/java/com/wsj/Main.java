@@ -5,37 +5,63 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Logger logger = LoggerFactory.getLogger(Main.class);
-        String url = "https://docs.onicloud.io/index.html";
+        Scanner scanner = new Scanner(System.in);
+        HandleFile handleFile = new HandleFile();
 
-        try {
-            String filename = url.substring(url.lastIndexOf("/") + 1).split(".html")[0];
-            logger.info("Extracted filename from URL: {}", filename);
+        System.out.print("Digite o nome do arquivo: ");
+        String filename = scanner.nextLine();
 
-            Document document = Jsoup.connect(url).get();
-            Elements pTags = document.select("p");
-            logger.info("Found {} <p> tags.", pTags.size());
+        handleFile.createFile(filename);
 
-            HandleFile handleFile = new HandleFile();
-            logger.info("Creating file with name: {}", filename);
-            handleFile.createFile(filename);
+        List<String> urls = new ArrayList<>();
+        String url;
 
-            for (Element pTag : pTags) {
-                System.out.println(pTag.text());
-                handleFile.writeFile(filename, pTag.text());
+        System.out.println("Digite as URLs uma por linha. Pressione ENTER sem digitar nada para finalizar.");
+
+        while (true) {
+            System.out.print("URL: ");
+            url = scanner.nextLine();
+            if (url.isBlank()) break;
+            urls.add(url);
+        }
+        for (String u : urls) {
+            try {
+                // O userAgent evita bloqueios por sites que barram bots
+                Document doc = Jsoup.connect(u)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36")
+                        .timeout(10 * 1000)
+                        .get();
+
+                Elements paragrafos = doc.select("p");
+
+                if (paragrafos.isEmpty()) {
+                    handleFile.writeFile(filename, "Nenhum parágrafo encontrado em: " + u);
+                } else {
+                    handleFile.writeFile(filename, "URL: " + u);
+                    for (Element p : paragrafos) {
+                        String texto = p.text();
+                        handleFile.writeFile(filename, texto);
+                    }
+                    handleFile.writeFile(filename, "----------------------------");
+                }
+
+                System.out.println("Parágrafos extraídos da URL: " + u);
+
+            } catch (IOException e) {
+                System.err.println("Erro ao acessar a URL: " + u);
+                handleFile.writeFile(filename, "Erro ao acessar a URL: " + u);
             }
-
-        } catch (IOException e) {
-            logger.error("An error occurred. {}", url, e);
-            e.printStackTrace();
         }
 
+        scanner.close();
+        System.out.println("Fim da execução.");
     }
 }
