@@ -29,13 +29,17 @@ public class Main {
             while (!fileCreated) {
                 System.out.print("Digite o nome do arquivo: ");
                 filename = scanner.nextLine();
+                if (filename.isBlank()) {
+                    logger.info("Criação de arquivo interrompido.");
+                    return;
+                }
                 fileCreated = handleFile.createFile(filename);
             }
 
             System.out.print("Digite a URL: ");
             url = scanner.nextLine();
             if (url.isBlank()) {
-                logger.info("Entrada de URLs finalizada.");
+                logger.info("Entrada de URLs interrompida.");
                 break;
             }
 //            logger.debug("URL adicionada à lista: {}", url);
