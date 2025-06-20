@@ -25,9 +25,12 @@ public class Main {
 
         while (true) {
             System.out.println("Pressione ENTER sem digitar nada para finalizar.");
-            System.out.print("Digite o nome do arquivo: ");
-            filename = scanner.nextLine();
-            Boolean fileCreated = handleFile.createFile(filename);
+            Boolean fileCreated = false;
+            while (!fileCreated) {
+                System.out.print("Digite o nome do arquivo: ");
+                filename = scanner.nextLine();
+                fileCreated = handleFile.createFile(filename);
+            }
 
             System.out.print("Digite a URL: ");
             url = scanner.nextLine();

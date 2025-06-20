@@ -19,12 +19,13 @@ public class HandleFile {
             File myObj = new File("C:\\Windows\\Temp\\" + filename + ".txt");
             if (myObj.createNewFile()) {
                 logger.info("File created: {}", myObj.getName());
+                logger.info("File saved on C:/Windows/Temp/{}", myObj.getName());
                 return true;
             }
             logger.warn("File already exists: {}", myObj.getName());
             return false;
         } catch (IOException e) {
-            logger.error("An error occurred. {}", e);
+            logger.error("An error occurred. ", e);
             return false;
         }
     }
