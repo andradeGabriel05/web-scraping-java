@@ -8,7 +8,6 @@ Este projeto realiza web scraping utilizando a biblioteca **Jsoup** para extrair
 - **Jsoup** (`org.jsoup`)
 - **SLF4J** (`org.slf4j`)
 - **Maven** ou qualquer gerenciador de dependência Java
-- Biblioteca personalizada `HandleFile` (gerencia criação e escrita de arquivos)
 
   ## 🚀 Como funciona
 
@@ -24,8 +23,6 @@ Este projeto realiza web scraping utilizando a biblioteca **Jsoup** para extrair
 Clone o repositório:
 bash
 - git clone https://github.com/andradeGabriel05/web-scraping-java.git
-- cd web-scraping-java
-- cd wsj
 
 ## ✅ Execução 
 O projeto é compatível com as principais IDEs Java:
